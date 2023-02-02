@@ -9,10 +9,10 @@ DATASET_LOADER = 'loader_BraTS2021'
 DATASET_NAME = 'BraTS2021'
 
 DST_DIR = './nnUNet'
-# TASK_IDS = range(670, 673)
-# TASK_IDS = range(673, 676)
-# TASK_IDS = range(676, 679)
-TASK_IDS = range(679, 682)
+# TASK_IDS = [670, 671, 672]
+# TASK_IDS = [673, 674, 675]
+# TASK_IDS = [676, 677, 678]
+TASK_IDS = [679, 680, 681]
 EXCLUDED_MODS = [
     ['t1', 't1ce', 't2'],
     ['t1', 't1ce', 't2'],
@@ -51,11 +51,13 @@ if __name__ == '__main__':
         dest_paths = [join(DST_DIR, task_name, 'imagesTr', basename(path)) for path in source_paths]
         
         run_multiproc(loader.copy, source_paths, dest_paths, desc='Deploying dataset', num_processes=1)
-        loader.generate_dataset_json(
+        generate_dataset_json(
             join(DST_DIR, task_name, 'dataset.json'),
+            task_name,
+            loader.new_alloc_labels,
+            loader.new_alloc_mods,
             join(DST_DIR, task_name, 'imagesTr'),
             None,
-            dataset_name=task_name
         )
         
         print('Total num of imagesTr: ', len(glob(join(DST_DIR, task_name, 'imagesTr', '*.nii.gz'))))

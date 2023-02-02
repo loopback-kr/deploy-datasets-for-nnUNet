@@ -76,6 +76,3 @@ class Loader_BraTS2021:
                     return
                 tqdm.write(f'{source_path} -> {join(dest_dir, f"{uid}_{self.MODALITIES.index(modality):04d}.nii.gz")}')
                 copy(source_path, join(dest_dir, f'{uid}_{self.new_alloc_mods.index(modality):04d}.nii.gz'))
-
-    def generate_dataset_json(self, dst_path, train_dir, test_dir, dataset_name):
-        generate_dataset_json(dst_path, train_dir, test_dir, self.new_alloc_mods, self.new_alloc_labels, dataset_name=dataset_name)

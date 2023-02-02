@@ -45,3 +45,29 @@ def run_multiproc(func, *args, desc='', num_processes=os.cpu_count()):
                 pbar.update()
             pool.close()
             pool.join()
+
+
+def generate_dataset_json(output_file: str, dataset_name: str, labels: dict, modalities: tuple, imagesTr_dir: str, imagesTs_dir: str, sort_keys=True, dataset_description: str = ""):
+    train_identifiers = ['_'.join(os.path.basename(path).split('.nii.gz')[0].split('_')[:-1]) for path in sorted(list(iglob(os.path.join(imagesTr_dir, '**', '*.nii.gz'), recursive=True)))]
+
+    if imagesTs_dir:
+        test_identifiers = ['_'.join(os.path.basename(path).split('.nii.gz')[0].split('_')[:-1]) for path in sorted(list(iglob(os.path.join(imagesTs_dir, '**', '*.nii.gz'), recursive=True)))]
+    else:
+        test_identifiers = []
+
+    json_dict = {}
+    json_dict['name'] = dataset_name
+    json_dict['description'] = dataset_description
+    json_dict['modality'] = {str(i): modalities[i] for i in range(len(modalities))}
+    json_dict['labels'] = {str(i): labels[i] for i in labels.keys()}
+
+    json_dict['numTraining'] = len(train_identifiers)
+    json_dict['numTest'] = len(test_identifiers)
+    json_dict['training'] = [
+        {'image': "./imagesTr/%s.nii.gz" % i, "label": "./labelsTr/%s.nii.gz" % i} for i
+        in
+        train_identifiers]
+    json_dict['test'] = ["./imagesTs/%s.nii.gz" % i for i in test_identifiers]
+
+    with open(os.path.join(output_file), 'w') as f:
+        json.dump(json_dict, f, sort_keys=sort_keys, indent=4)

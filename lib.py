@@ -1,10 +1,9 @@
-import os, importlib, numpy as np, nibabel as nib, SimpleITK as sitk, json, csv, cv2, re, random
+import os, importlib, numpy as np, nibabel as nib, json, csv, re, random
 from tqdm import tqdm, trange
 from tqdm.contrib import tzip
-from os.path import join, basename, exists, splitext
-from shutil import copy, copytree
+from os.path import join, basename, exists, splitext, isdir, dirname
+from shutil import copy, copytree, rmtree
 from glob import glob, iglob
-from sklearn.model_selection import train_test_split
 from datetime import datetime
 from multiprocessing.pool import Pool
 import multiprocessing.pool as mpp

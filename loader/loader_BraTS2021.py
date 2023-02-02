@@ -1,11 +1,5 @@
-import os, numpy as np, nibabel as nib, SimpleITK as sitk, json, csv, cv2, re, random
-from tqdm import tqdm, trange
-from tqdm.contrib import tzip
-from os.path import join, basename, exists, splitext, dirname, isdir
-from shutil import copy, copytree, rmtree
-from glob import glob, iglob
-from sklearn.model_selection import train_test_split
-from utils import generate_dataset_json
+from lib import *
+
 
 class Loader_BraTS2021:
     MODALITIES = ['t1', 't1ce', 't2', 'flair']

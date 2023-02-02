@@ -1,29 +1,49 @@
 import os, numpy as np, nibabel as nib, SimpleITK as sitk, json, csv, cv2, re, random
 from tqdm import tqdm, trange
 from tqdm.contrib import tzip
-from os.path import join, basename, exists, splitext, dirname
-from shutil import copy, copytree
+from os.path import join, basename, exists, splitext, dirname, isdir
+from shutil import copy, copytree, rmtree
 from glob import glob, iglob
 from sklearn.model_selection import train_test_split
-
+from utils import generate_dataset_json
 
 class Loader_BraTS2021:
     MODALITIES = ['t1', 't1ce', 't2', 'flair']
-    LEGENDS = ['Normal', 'Necrotic_tumor_core','Peritumoral_invaded_tissue','GD_enhancing_tumor']
-    LEGENDS_SHORT = ['Normal', 'Necrotic','Peritumoral','Enhancing']
-    LABELS = [0,1,2,4]
+    LABELS = [0,1,2,4] # Label하고 Legends 합치는게 좋을듯?
+    LBL_LEGENDS = ['Normal', 'Necrotic','Peritumoral', 'Enhancing']
+    LABELS_ALT = {
+        0: 'Normal',
+        1: 'Necrotic',
+        2: 'Peritumoral',
+        4: 'Enhancing',
+    }
     OUTLIERS = ['BraTS2021_01666']
 
     def __init__(
         self,
         dataset_dir,
-        remove_modalities: list=None,
-        remove_labels: list=None,
-        remain_label: int=None,
+        overwrite: bool=False,
+        excluded_mods: list=None,
+        excluded_labels: list=None,
         ) -> None:
-        self.remove_modalities = remove_modalities
-        self.remove_labels = remove_labels
-        self.remain_label = remain_label
+        self.excluded_mods = excluded_mods
+        if excluded_mods:
+            self.new_alloc_mods = list(set(self.MODALITIES) - set(excluded_mods))
+        else:
+            self.new_alloc_mods = self.MODALITIES
+        self.excluded_labels = excluded_labels
+        if excluded_labels:
+            self.remain_labels = [0] + list(set(self.LABELS_ALT.keys()) - set(excluded_labels))
+        else:
+            self.remain_labels = [0] + [i for i, _ in enumerate(self.LABELS_ALT.keys()) if i != 0]
+        self.new_alloc_labels = {
+            i: self.LABELS_ALT[lbl]
+            for i, lbl in enumerate(
+                self.remain_labels,
+            )
+        }
+
+        if isdir(dataset_dir) and overwrite: rmtree(dataset_dir)
         os.makedirs(join(dataset_dir, 'imagesTr'), exist_ok=True)
         os.makedirs(join(dataset_dir, 'labelsTr'), exist_ok=True)
 
@@ -31,30 +51,37 @@ class Loader_BraTS2021:
         if basename(source_path) in self.OUTLIERS:
             tqdm.write(f'Skipped outlier: {source_path}')
             return
-        tqdm.write(f'{source_path} -> {dest_path}')
 
         uid = '_'.join(basename(source_path).split('.nii.gz')[0].split('_')[:2])
         modality = basename(source_path).split('.nii.gz')[0].split('_')[2]
 
         if modality == 'seg':
-            if self.remove_labels is None:
+            if self.excluded_labels is None:
+                tqdm.write(f'{source_path} -> {dest_path.replace("_seg", "").replace("imagesTr", "labelsTr")}')
                 copy(source_path, dest_path.replace('_seg', '').replace('imagesTr', 'labelsTr'))
             else:
                 raw = nib.load(source_path)
                 rawdata = raw.get_fdata()
                 new_lbl = rawdata
-                for i in self.remove_labels:
+                for i in self.excluded_labels:
                     new_lbl = np.where(new_lbl==i, 0, new_lbl)
-                new_lbl = np.where(new_lbl==self.remain_label, 1, new_lbl)
+                for lbl, key in zip(self.remain_labels, self.new_alloc_labels.keys()):
+                    if key == 0: continue
+                    new_lbl = np.where(new_lbl==lbl, key, new_lbl)
                 new = nib.Nifti1Image(new_lbl, header=raw.header, affine=raw.affine) 
-                nib.save(new, dest_path)
+                tqdm.write(f'{source_path} -> {dest_path.replace("_seg", "").replace("imagesTr", "labelsTr")}')
+                nib.save(new, dest_path.replace('_seg', '').replace('imagesTr', 'labelsTr'))
         else:
             dest_dir = dirname(dest_path)
-            if self.remove_modalities is None:
+            if self.excluded_mods is None:
+                tqdm.write(f'{source_path} -> {join(dest_dir, f"{uid}_{self.MODALITIES.index(modality):04d}.nii.gz")}')
                 copy(source_path, join(dest_dir, f'{uid}_{self.MODALITIES.index(modality):04d}.nii.gz'))
             else:
-                if modality in self.remove_modalities:
+                if modality in self.excluded_mods:
                     tqdm.write(f'Skipped modality: {source_path}:{modality}')
                     return
-                uid = '_'.join((uid, f'{MODALITIES.index(name_spl[2]):04d}'))
-                copy(source_path, join(DST_DIR, TASK_NAME, 'imagesTr', uid + '.nii.gz'))
+                tqdm.write(f'{source_path} -> {join(dest_dir, f"{uid}_{self.MODALITIES.index(modality):04d}.nii.gz")}')
+                copy(source_path, join(dest_dir, f'{uid}_{self.new_alloc_mods.index(modality):04d}.nii.gz'))
+
+    def generate_dataset_json(self, dst_path, train_dir, test_dir, dataset_name):
+        generate_dataset_json(dst_path, train_dir, test_dir, self.new_alloc_mods, self.new_alloc_labels, dataset_name=dataset_name)

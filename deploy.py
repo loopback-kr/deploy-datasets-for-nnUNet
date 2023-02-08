@@ -8,25 +8,28 @@ DATASET_ROOT_DIR = 'Rawdata/BraTS2021_Training_Data'
 DATASET_LOADER = 'loader_BraTS2021'
 DATASET_NAME = 'BraTS2021'
 
-DST_DIR = './nnUNet'
+DST_DIR = 'C:/Apache24/htdocs/lab.loopback.kr/datasets/nnUNet'
+TASK_IDS = [999, 999, 999, 999]
 # TASK_IDS = [670, 671, 672]
 # TASK_IDS = [673, 674, 675]
 # TASK_IDS = [676, 677, 678]
-TASK_IDS = [679, 680, 681]
+# TASK_IDS = [630]
 EXCLUDED_MODS = [
-    ['t1', 't1ce', 't2'],
-    ['t1', 't1ce', 't2'],
+    ['t1ce', 't2', 'flair'],
+    ['t1', 't2', 'flair'],
+    ['t1', 't1ce', 'flair'],
     ['t1', 't1ce', 't2'],
 ]
 EXCLUDED_LABELS = [
-    [0,2,4],
-    [0,1,4],
+    [0,1,2],
+    [0,1,2],
+    [0,1,2],
     [0,1,2],
 ]
 
 
 TASK_NAMES = {
-    id: f'Task{id}-{DATASET_NAME}-{"_".join(list(set(find_loader(DATASET_LOADER).MODALITIES) - set(excluded_mods)))}-{"_".join([find_loader(DATASET_LOADER).LBL_LEGENDS[i] for i in [find_loader(DATASET_LOADER).LABELS.index(i) for i in list(set(find_loader(DATASET_LOADER).LABELS) - set(excluded_lbls))]])}'
+    id: f'Task{id}_{DATASET_NAME}_{"_".join(list(set(find_loader(DATASET_LOADER).MODALITIES) - set(excluded_mods))).upper()}_{"_".join([find_loader(DATASET_LOADER).LBL_LEGENDS[i] for i in [find_loader(DATASET_LOADER).LABELS.index(i) for i in list(set(find_loader(DATASET_LOADER).LABELS) - set(excluded_lbls))]])}'
     
     for id, excluded_mods, excluded_lbls in zip(
         TASK_IDS,

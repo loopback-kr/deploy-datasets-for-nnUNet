@@ -3,14 +3,9 @@ from lib import *
 
 class Loader_BraTS2021:
     MODALITIES = ['t1', 't1ce', 't2', 'flair']
-    LABELS = [0,1,2,4] # Label하고 Legends 합치는게 좋을듯?
+    LABELS = [0,1,2,4]
     LBL_LEGENDS = ['Normal', 'Necrotic','Peritumoral', 'Enhancing']
-    LABELS_ALT = {
-        0: 'Normal',
-        1: 'Necrotic',
-        2: 'Peritumoral',
-        4: 'Enhancing',
-    }
+    LABELS_ALT = {lbl:legend for lbl, legend in zip(LABELS, LBL_LEGENDS)}
     OUTLIERS = ['BraTS2021_01666']
 
     def __init__(

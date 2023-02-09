@@ -34,7 +34,7 @@ mpp.Pool.istarmap = istarmap
 def find_loader(loader_name: str):
     datasetlib = importlib.import_module(f'loader.{loader_name}')
     for name, cls in datasetlib.__dict__.items():
-        if name == loader_name.replace('loader_', 'Loader_'):
+        if name == loader_name:
             return cls
     raise NotImplementedError('Unknown loader name')
 

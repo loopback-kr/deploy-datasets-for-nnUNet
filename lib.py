@@ -41,7 +41,7 @@ def find_loader(loader_name: str):
 def run_multiproc(func, *args, desc='', num_processes=os.cpu_count()):
     with tqdm(total=len(args[0]),desc=desc, colour="green", dynamic_ncols=True) as pbar:
         with Pool(num_processes) as pool:
-            for _ in pool.istarmap(func, zip(*args)):
+            for _ in pool.istarmap(func, zip(*args)): # TODO: 리스트가 1개밖에 없는건 자동으로 늘리게 하는 코드 내장하도록
                 pbar.update()
             pool.close()
             pool.join()

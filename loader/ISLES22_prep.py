@@ -7,7 +7,7 @@ from glob import glob, iglob
 from sklearn.model_selection import train_test_split
 
 
-class Loader_ISLES22_preprocessed:
+class ISLES22_prep:
     MODALITIES = ['adc', 'dwi', 'flair']
     LEGENDS = ['Normal', 'Label']
     LEGENDS_SHORT = LEGENDS

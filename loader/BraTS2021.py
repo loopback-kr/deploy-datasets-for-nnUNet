@@ -1,7 +1,7 @@
 from lib import *
 
 
-class Loader_BraTS2021:
+class BraTS2021:
     MODALITIES = ['t1', 't1ce', 't2', 'flair']
     LABELS = [0,1,2,4]
     LBL_LEGENDS = ['Normal', 'Necrotic','Peritumoral', 'Enhancing']

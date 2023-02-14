@@ -1,6 +1,6 @@
 *.nii.gz
 *.json
 *.png
-.DS_Store
 *.pdf
+datasets/
 __pycache__/

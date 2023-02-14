@@ -18,6 +18,8 @@ TASK_NAMES = [
 
 
 if __name__ == '__main__':
+
+    [print(task_name) for task_name in TASK_NAMES]
     
     for idx, task_name in enumerate(TASK_NAMES):
     
@@ -32,7 +34,7 @@ if __name__ == '__main__':
         src_phase_paths, dst_phase_paths = loader.get_paths()
         for dir in list(set([dirname(path) for path in dst_phase_paths])):
             os.makedirs(dir, exist_ok=True)
-        run_multiproc(copy, src_phase_paths, dst_phase_paths, desc='Deploying dataset', num_processes=os.cpu_count()*2)
+        run_multiproc(loader.copy, src_phase_paths, dst_phase_paths, desc='Deploying dataset', num_processes=os.cpu_count()*2)
     
         generate_dataset_json(
             join(DST_DIR, task_name, 'dataset.json'),

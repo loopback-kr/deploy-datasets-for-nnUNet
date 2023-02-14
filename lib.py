@@ -32,7 +32,7 @@ def istarmap(self, func, iterable, chunksize=1):
 mpp.Pool.istarmap = istarmap
 
 def find_loader(loader_name: str):
-    datasetlib = importlib.import_module(f'loader.{loader_name}')
+    datasetlib = importlib.import_module(f'loaders.{loader_name}')
     for name, cls in datasetlib.__dict__.items():
         if name == loader_name:
             return cls

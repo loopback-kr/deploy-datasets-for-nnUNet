@@ -1,6 +1,13 @@
 from lib import *
 
 class Loader:
+    MODALITIES = ['MODALITY']
+    LABELS = [0, 1]
+    LBL_LEGENDS = ['Normal', 'Label']
+    LABELS_ALT = {lbl:legend for lbl, legend in zip(LABELS, LBL_LEGENDS)}
+    OUTLIERS = []
+    EXTENSION = '.nii.gz'
+
     def __init__(
         self,
         src_dataset_dir,
@@ -8,9 +15,12 @@ class Loader:
         overwrite: bool=False,
         excluded_mods: list=None,
         excluded_labels: list=None,
+        format: str=EXTENSION,
+        dirs_ratio: dict={'tr': 0.7, 'val': 0.2, 'ts': 0.1},
         ) -> None:
         self.src_dataset_dir = src_dataset_dir
         self.dst_dataset_dir = dst_dataset_dir
+        if isdir(dst_dataset_dir) and overwrite: rmtree(dst_dataset_dir)
         self.excluded_mods = excluded_mods
         if excluded_mods:
             self.new_alloc_mods = list(set(self.MODALITIES) - set(excluded_mods))
@@ -27,4 +37,11 @@ class Loader:
                 self.remain_labels,
             )
         }
-        if isdir(dst_dataset_dir) and overwrite: rmtree(dst_dataset_dir)
+        self.format = format
+        self.dirs_ratio = dirs_ratio
+    
+    def get_paths(self):
+        pass
+    
+    def copy(self, src_path, dst_path):
+        copy(src_path, dst_path)

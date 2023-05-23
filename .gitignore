@@ -1,6 +1,9 @@
-*.nii.gz
-*.json
-*.png
-*.pdf
-datasets/
 __pycache__/
+out/
+raw/
+*.nii.gz
+*.nrrd
+*.npy
+*.npz
+*.png
+*.jpg

@@ -1,11 +1,10 @@
-import os, importlib, numpy as np, nibabel as nib, json, csv, re, random
+import os, importlib, numpy as np, nibabel as nib, json, csv, re, random, pandas as pd
 from tqdm import tqdm, trange
 from tqdm.contrib import tzip
 from os.path import join, basename, exists, splitext, isdir, dirname
 from shutil import copy, copytree, rmtree
 from glob import glob, iglob
 from datetime import datetime
-from multiprocessing.pool import Pool
 import multiprocessing.pool as mpp
 
 
@@ -40,18 +39,18 @@ def find_loader(loader_name: str):
 
 def run_multiproc(func, *args, desc='', num_processes=os.cpu_count()):
     with tqdm(total=len(args[0]),desc=desc, colour="green", dynamic_ncols=True) as pbar:
-        with Pool(num_processes) as pool:
+        with mpp.Pool(num_processes) as pool:
             for _ in pool.istarmap(func, zip(*args)): # TODO: 리스트가 1개밖에 없는건 자동으로 늘리게 하는 코드 내장하도록
                 pbar.update()
             pool.close()
             pool.join()
 
 
-def generate_dataset_json(output_file: str, dataset_name: str, labels: dict, modalities: tuple, imagesTr_dir: str, imagesTs_dir: str, sort_keys=True, dataset_description: str = ""):
-    train_identifiers = ['_'.join(os.path.basename(path).split('.nii.gz')[0].split('_')[:-1]) for path in sorted(list(iglob(os.path.join(imagesTr_dir, '**', '*.nii.gz'), recursive=True)))]
+def generate_dataset_json(output_file: str, dataset_name: str, labels: dict, modalities: tuple, imagesTr_dir: str, imagesTs_dir: str, sort_keys=True, dataset_description: str = "", extension='.nii.gz'):
+    train_identifiers = ['_'.join(os.path.basename(path).split(extension)[0].split('_')[:-1]) for path in sorted(list(iglob(os.path.join(imagesTr_dir, '**', f'*{extension}'), recursive=True)))]
 
     if imagesTs_dir:
-        test_identifiers = ['_'.join(os.path.basename(path).split('.nii.gz')[0].split('_')[:-1]) for path in sorted(list(iglob(os.path.join(imagesTs_dir, '**', '*.nii.gz'), recursive=True)))]
+        test_identifiers = ['_'.join(os.path.basename(path).split(extension)[0].split('_')[:-1]) for path in sorted(list(iglob(os.path.join(imagesTs_dir, '**', f'*{extension}'), recursive=True)))]
     else:
         test_identifiers = []
 
@@ -64,10 +63,10 @@ def generate_dataset_json(output_file: str, dataset_name: str, labels: dict, mod
     json_dict['numTraining'] = len(train_identifiers)
     json_dict['numTest'] = len(test_identifiers)
     json_dict['training'] = [
-        {'image': "./imagesTr/%s.nii.gz" % i, "label": "./labelsTr/%s.nii.gz" % i} for i
+        {'image': f"./imagesTr/{i}{extension}", "label": f"./labelsTr/{i}{extension}"} for i
         in
         train_identifiers]
-    json_dict['test'] = ["./imagesTs/%s.nii.gz" % i for i in test_identifiers]
+    json_dict['test'] = [f"./imagesTs/{i}{extension}" for i in test_identifiers]
 
     with open(os.path.join(output_file), 'w') as f:
         json.dump(json_dict, f, sort_keys=sort_keys, indent=4)

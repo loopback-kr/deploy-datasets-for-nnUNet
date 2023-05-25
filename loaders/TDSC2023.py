@@ -2,6 +2,7 @@ import nrrd, pandas as pd
 from lib import *
 from loaders.loader import Loader
 
+
 class TDSC2023(Loader):
     MODALITIES = ['NRRD_ALIGN']
     LABELS = [0, 1, 2]
@@ -18,7 +19,7 @@ class TDSC2023(Loader):
         excluded_mods: list=None,
         excluded_labels: list=None,
         format: str=EXTENSION,
-        dirs_ratio: dict={'tr': 0.7, 'val': 0.2, 'ts': 0.1},
+        dirs_ratio: dict={'Tr': 0.7, 'Val': 0.2, 'Ts': 0.1},
         ) -> None:
         super().__init__(src_dataset_dir, dst_dataset_dir, overwrite, excluded_mods, excluded_labels, format, dirs_ratio)
 
@@ -35,8 +36,8 @@ class TDSC2023(Loader):
 
         ids = [basename(path).split(self.EXTENSION)[0] for path in lbl_paths]
 
-        train_ids, valid_test_ids = train_test_split(ids, test_size=np.trunc((1-self.dirs_ratio['tr'])*100000)/100000, shuffle=True, random_state=0)
-        valid_ids, test_ids = train_test_split(valid_test_ids, test_size=np.trunc((self.dirs_ratio['val']+self.dirs_ratio['ts'])*100000)/100000, shuffle=True, random_state=0)
+        train_ids, valid_test_ids = train_test_split(ids, train_size=self.dirs_ratio['Tr'], test_size=self.dirs_ratio['Val'] + self.dirs_ratio['Ts'], shuffle=True, random_state=0)
+        valid_ids, test_ids = train_test_split(valid_test_ids, train_size=self.dirs_ratio['Val'], test_size=self.dirs_ratio['Ts'], shuffle=True, random_state=0)
 
         for img_path, lbl_path in zip(img_paths, lbl_paths):
             id = basename(lbl_path).split(self.EXTENSION)[0]
@@ -61,10 +62,10 @@ class TDSC2023(Loader):
         if label == 'M':
             # data[data == 1] = 2
             # dst_path = dst_path.replace('DATA', 'Malignant')
-            header['label'] = 'malignant'
+            header['lesion'] = 'malignant'
         else:
             # dst_path = dst_path.replace('DATA', 'Benign')
-            header['label'] = 'benign'
+            header['lesion'] = 'benign'
 
         if self.format == '.nrrd':
             aligned = data

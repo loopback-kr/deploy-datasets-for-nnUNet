@@ -18,9 +18,9 @@ TASK_NAMES = [
     for excluded_mods, excluded_lbls in zip(EXCLUDED_MODS, EXCLUDED_LABELS)
 ]
 DIRS_RATIO = {
-    'Tr': 0.7,
-    'Val': 0.2,
-    'Ts': 0.1,
+    'Tr': 70,
+    'Val': 20,
+    'Ts': 10,
 }
 RND_SEED = 0
 
@@ -37,7 +37,8 @@ if __name__ == '__main__':
             dst_dataset_dir=join(DST_DIR, task_name),
             overwrite=True,
             excluded_mods=EXCLUDED_MODS[idx],
-            excluded_labels=EXCLUDED_LABELS[idx]
+            excluded_labels=EXCLUDED_LABELS[idx],
+            dirs_ratio=DIRS_RATIO,
         )
         src_phase_paths, dst_phase_paths = loader.get_paths()
 

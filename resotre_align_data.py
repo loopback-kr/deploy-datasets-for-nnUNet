@@ -13,8 +13,8 @@ import numpy as np, scipy, pandas, cv2 as cv, SimpleITK as sitk, nibabel as nib,
 import matplotlib.pyplot as plt
 import nrrd
 
-SRC_DATA_DIR = "submit"
-DST_DATA_DIR = "submit_restore"
+SRC_DATA_DIR = "First_Align_Generic"
+DST_DATA_DIR = "submit"
 
 os.makedirs(DST_DATA_DIR, exist_ok=True)
 for path in tqdm(sorted(glob(join(SRC_DATA_DIR, "*.nii.gz")))):
@@ -22,5 +22,5 @@ for path in tqdm(sorted(glob(join(SRC_DATA_DIR, "*.nii.gz")))):
     aligned = raw.get_fdata()
     aligned = np.flip(aligned, axis=1)
     aligned = np.flip(aligned, axis=0)
-    aligned_data = nib.Nifti1Image(aligned, None)
+    aligned_data = nib.Nifti1Image(aligned.astype(np.uint8), None)
     nib.save(aligned_data, join(DST_DATA_DIR, basename(path).replace("DATA", "MASK")))

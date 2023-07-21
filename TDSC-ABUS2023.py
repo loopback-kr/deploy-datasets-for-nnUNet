@@ -84,7 +84,7 @@ class TDSCABUS2023(Loader):
 if __name__ == '__main__':
     dataset = TDSCABUS2023(
         src_dataset_dir="D:/datasets/TDSC-ABUS2023",
-        dst_dataset_dir="out/TDSC-ABUS2023",
+        dst_dataset_dir="out/TDSC-ABUS2023_NIFTI",
         target_extension=".nii.gz",
     )
 
@@ -94,10 +94,13 @@ if __name__ == '__main__':
         src_paths,
         dst_paths,
         [{'write_label': False, 'align': False}] * len(src_paths),
-        num_processes=1
     )
 
-    # generate_dataset_json(
-    #     output_file=join("out/TDSC-ABUS2023", 'dataset.json'),
-    #     dataset_name="TDSC-ABUS2023",
-    # )
+    generate_dataset_json(
+        output_file=join("out/TDSC-ABUS2023_NIFTI", 'dataset.json'),
+        dataset_name="TDSC-ABUS2023",
+        labels={0: "background", 1: "label"},
+        modalities=["Tumor"],
+        imagesTr_dir="out/TDSC-ABUS2023_NIFTI/imagesTr",
+        imagesTs_dir=None
+    )

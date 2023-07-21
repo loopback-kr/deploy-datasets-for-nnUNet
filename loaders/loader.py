@@ -45,3 +45,20 @@ class Loader:
     
     def copy(self, src_path, dst_path):
         copy(src_path, dst_path)
+    
+    class DecathlonSpec:
+        def __init__(self) -> None:
+            self.name = 'Dataset name'
+            self.description = 'Dataset description'
+            self.reference = 'Dataset reference'
+            self.release = 'Dataset release'
+            self.license = 'Dataset license'
+            self.file_ending = 'Data file extension'
+            self.modality = 'Data modality'
+            self.labels = {0: "background", 1: "Label"}
+            self.numTraining = 0
+            self.numValidation = 0
+            self.numTest = 0
+            self.test = []
+            self.training = []
+            self.validation = []
